@@ -6,6 +6,7 @@ import { rateLimit } from 'express-rate-limit';
 import { config } from 'dotenv';
 import { AppError } from './utils/classError';
 import userRouter from './modules/users/user.controller';
+import checkConnectionDB from './DB/connectionDB';
 
 // ============ Load ENV ============
 config({ path: resolve('./config/.env') });
@@ -27,6 +28,7 @@ const limiter = rateLimit({
 // ============ Bootstrap Function ============
 const bootstrap = () => {
   // Middleware
+  checkConnectionDB();
   app.use(express.json());
   app.use(cors());
   app.use(helmet());

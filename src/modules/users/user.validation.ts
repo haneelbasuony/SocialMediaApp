@@ -1,9 +1,10 @@
 import { z } from 'zod';
+import { GenderType } from '../../DB/model/user.model';
 
 export const signupSchema = {
   body: z
     .object({
-      name: z.string().min(2, 'Name must be at least 2 characters'),
+      fullName: z.string().min(2, 'Name must be at least 2 characters'),
       email: z.string().email('Invalid email address'),
       password: z
         .string()
@@ -19,15 +20,21 @@ export const signupSchema = {
         .max(20, 'Phone looks too long')
         .optional()
         .or(z.literal('')),
-      gender: z.enum(['male', 'female', 'other']).optional(),
-      // Accept age as string or number (useful if coming from forms)
+      address: z
+        .string()
+        .max(255, 'Address too long')
+        .optional()
+        .or(z.literal('')),
+      gender: z.enum(Object.values(GenderType)).optional(),
       age: z.preprocess((val) => {
         if (typeof val === 'string' && val.trim() === '') return undefined;
         return typeof val === 'string' ? Number(val) : val;
-      }, z.number().int().min(13, 'Age must be 13 or older').max(120).optional()),
+      }, z.number().int().min(18, 'Age must be 18 or older').max(60).optional()),
     })
     .refine((data) => data.password === data.cPassword, {
       message: 'Passwords do not match',
-      path: ['confirmPassword'],
+      path: ['cPassword'],
     }),
 };
+
+export type signupSchemaType = z.infer<typeof signupSchema.body>;
